@@ -57,9 +57,10 @@ This project is a backend application built with Express, MongoDB, and JWT authe
 
    ```
 
-4. JWT_SECRET=your_jwt_secret
+4. Create a .env file in the root directory and add your environment variables:
 
    ```bash
+   JWT_SECRET=your_jwt_secret
 
    ```
 
@@ -80,7 +81,7 @@ This project is a backend application built with Express, MongoDB, and JWT authe
 3. Create a new project by running the following command:
 
    ```bash
-      sys create <filename>
+   sys create <filename>
    ```
 
    Replace <filename> with the desired name for your project. This command will initialize a new project with the specified structure and files.
@@ -88,4 +89,7 @@ This project is a backend application built with Express, MongoDB, and JWT authe
 ## Run
 
 To start the application in development mode, run:
+
+```bash
 npm run dev
+```
