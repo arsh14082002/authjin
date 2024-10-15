@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 
+const your_jwt_secret = process.env.JWT_SECRET || 'your_jwt_secret';
+
 const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) {
@@ -7,7 +9,7 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    const decoded = jwt.verify(token, your_jwt_secret);
     req.user = decoded; // Assuming you attach user data to req.user
     next();
   } catch (error) {
