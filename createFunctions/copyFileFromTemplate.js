@@ -1,49 +1,59 @@
 import fs from 'fs-extra';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export async function copyFileFromTemplate(dir, filename, useTypescript) {
   let templatePath, destinationPath;
-
-  // Determine the extension based on whether TypeScript is used
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const ext = useTypescript ? 'ts' : 'js';
 
-  // Use a switch-case for better readability
   switch (filename) {
+    case 'eslint.config.js':
+      templatePath = path.join(__dirname, `../templates/eslint.config.js`);
+      destinationPath = path.join(dir, `eslint.config.js`);
+      break;
+    case '.prettierrc':
+      templatePath = path.join(__dirname, `../templates/.prettierrc`);
+      destinationPath = path.join(dir, `.prettierrc`);
+      break;
     case 'server.js':
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/server.${ext}`;
+      templatePath = path.join(__dirname, `../templates/server.js`);
+      destinationPath = path.join(dir, `server.${ext}`);
       break;
-    case 'db.js':
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/config/db.${ext}`;
+    case 'src/config/db.js':
+      templatePath = path.join(__dirname, `../templates/src/config/db.js`);
+      destinationPath = path.join(dir, `src/config/db.${ext}`);
       break;
-    case 'userRoute.js':
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/routes/userRoute.${ext}`;
+    case 'src/routes/userRoute.js':
+      templatePath = path.join(__dirname, `../templates/src/routes/userRoute.js`);
+      destinationPath = path.join(dir, `src/routes/userRoute.${ext}`);
       break;
-    case 'userController.js':
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/controllers/userController.${ext}`;
+    case 'src/controllers/userController.js':
+      templatePath = path.join(__dirname, `../templates/src/controllers/userController.js`);
+      destinationPath = path.join(dir, `src/controllers/userController.${ext}`);
       break;
-    case 'authMiddleware.js': // Ensure correct casing
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/middlewares/authMiddleware.${ext}`;
+    case 'src/middlewares/authMiddleware.js':
+      templatePath = path.join(__dirname, `../templates/src/middlewares/authMiddleware.js`);
+      destinationPath = path.join(dir, `src/middlewares/authMiddleware.${ext}`);
       break;
-    case 'userModel.js': // Ensure correct casing
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/models/userModel.${ext}`;
+    case 'src/models/userModel.js':
+      templatePath = path.join(__dirname, `../templates/src/models/userModel.js`);
+      destinationPath = path.join(dir, `src/models/userModel.${ext}`);
+      break;
+    case 'src/config/apiConfig.js': // Use the correct filename here
+      templatePath = path.join(__dirname, `../templates/src/config/apiConfig.js`);
+      destinationPath = path.join(dir, `src/config/apiConfig.${ext}`);
       break;
     default:
-      templatePath = path.resolve(`./templates/${filename}`);
-      destinationPath = `${dir}/src/app.${ext}`;
+      templatePath = path.join(__dirname, `../templates/src/app.js`);
+      destinationPath = path.join(dir, `src/app.${ext}`);
       break;
   }
 
-  // Check if the template file exists and copy it
   if (fs.existsSync(templatePath)) {
     await fs.copy(templatePath, destinationPath);
-    console.log(`${filename} copied to ${destinationPath} with .${ext} extension`);
+    // console.log(`${filename} copied to ${destinationPath} with .${ext} extension`);
   } else {
-    console.error(`Template ${filename} not found!`);
+    console.error(`Template ${templatePath} not found!`);
   }
 }
