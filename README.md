@@ -103,7 +103,7 @@ MONGO_URI=mongodb://localhost:27017/mydatabase
    - **MongoDB URI:** If you're using a local MongoDB instance, the default connection string will suffice. For cloud databases, replace it with your connection string.
 
 # Running the Application
-    After configuring your environment variables, run the following commands to install dependencies and start the server
+After configuring your environment variables, run the following commands to install dependencies and start the server
     ```palintext
     npm install
     npm start
