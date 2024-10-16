@@ -16,6 +16,10 @@ export async function copyFileFromTemplate(dir, filename, useTypescript) {
       templatePath = path.join(__dirname, `../templates/.prettierrc`);
       destinationPath = path.join(dir, `.prettierrc`);
       break;
+    case ".gitignore":
+      templatePath = path.join(__dirname, `../templates/.gitignore`);
+      destinationPath = path.join(dir, `.gitignore`);
+      break;
     case 'server.js':
       templatePath = path.join(__dirname, `../templates/server.js`);
       destinationPath = path.join(dir, `server.${ext}`);

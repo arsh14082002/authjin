@@ -1,34 +1,98 @@
-# Auth-Jen Bundler
+# My Node Authentication Bundler
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+## Overview
 
-Auth-Jen is a project bundler that simplifies the setup for Node.js applications with features like TypeScript support, ESLint, and Prettier configurations.
+This API provides user authentication and management functionalities. Below is a detailed explanation of the routes available in the application, along with instructions on configuring necessary API keys and environment variables for a successful setup.
 
-## Table of Contents
+## Routes
 
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-  - [ESLint](#eslint)
-  - [Prettier](#prettier)
-  - [TypeScript](#typescript)
-- [Folder Structure](#folder-structure)
-- [Contributing](#contributing)
-- [License](#license)
+### User Authentication
 
-## Features
+1. **Register User**
+   - **Endpoint:** `POST /api/register`
+   - **Description:** Registers a new user in the application.
+   - **Request Body:**
+     ```json
+     {
+       "username": "string",
+       "email": "string",
+       "password": "string"
+     }
+     ```
 
-- Easy project setup for Node.js applications.
-- Supports TypeScript and JavaScript.
-- Configured with ESLint for code quality.
-- Integrated Prettier for code formatting.
-- Customizable folder structure.
+2. **Login User**
+   - **Endpoint:** `POST /api/login`
+   - **Description:** Authenticates a user and returns a JWT token.
+   - **Request Body:**
+     ```json
+     {
+       "email": "string",
+       "password": "string"
+     }
+     ```
 
-## Installation
+3. **Logout User**
+   - **Endpoint:** `POST /api/logout`
+   - **Description:** Logs out the user by invalidating the JWT token.
+   - **Middleware:** Requires authentication.
 
-To install Auth-Jen, follow these steps:
+4. **Forgot Password**
+   - **Endpoint:** `POST /api/forgot-password`
+   - **Description:** Initiates the password reset process by sending an email to the user.
+   - **Request Body:**
+     ```json
+     {
+       "email": "string"
+     }
+     ```
+   - **Middleware:** Requires authentication.
 
-   ```bash
-   npx sys create <filename>
-   ```
+5. **Reset Password**
+   - **Endpoint:** `POST /api/reset-password`
+   - **Description:** Resets the user's password using a token sent via email.
+   - **Request Body:**
+     ```json
+     {
+       "token": "string",
+       "newPassword": "string"
+     }
+     ```
+   - **Middleware:** Requires authentication.
+
+### SMS Verification
+
+6. **Send SMS OTP**
+   - **Endpoint:** `POST /api/send-otp`
+   - **Description:** Sends an OTP (One-Time Password) to the user's registered phone number for verification.
+
+7. **Verify OTP**
+   - **Endpoint:** `POST /api/verify-otp`
+   - **Description:** Verifies the OTP sent to the user's phone number.
+
+### User Profile
+
+8. **Get Single User**
+   - **Endpoint:** `GET /api/:id`
+   - **Description:** Retrieves the profile of a user by their ID.
+   - **Middleware:** Requires authentication.
+
+## Configuration
+
+Before running the application, make sure to set up your environment variables. You can create a `.env` file in the root of your project with the following keys:
+
+```plaintext
+# JWT Secret for signing tokens
+JWT_SECRET=your_jwt_secret
+
+# Email configuration
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_email_password
+
+# Twilio configuration
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+
+# MongoDB connection string
+MONGO_URI=mongodb://localhost:27017/mydatabase
+
+# Important Notes
