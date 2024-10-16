@@ -104,7 +104,7 @@ MONGO_URI=mongodb://localhost:27017/mydatabase
 
 # Running the Application
 After configuring your environment variables, run the following commands to install dependencies and start the server
-    ```palintext
+    ```plaintext
     npm install
     npm start
     ```
