@@ -1,20 +1,37 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/userModel.js';
+import apiConfig from '../config/apiConfig.js';
 
-const your_jwt_secret = process.env.JWT_SECRET || 'your_jwt_secret';
+const your_jwt_secret = apiConfig.jwtSecret;
 
-const authMiddleware = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+export const authMiddleware = async (req, res, next) => {
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+  console.log(token)
+
   if (!token) {
-    return res.status(401).json({ message: 'Access denied. No token provided.' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
     const decoded = jwt.verify(token, your_jwt_secret);
-    req.user = decoded; // Assuming you attach user data to req.user
+    req.userId = decoded.userId;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({ message: 'Please verify your email first' });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    res.status(400).json({ message: 'Invalid token.' });
+    console.error('JWT Verification Error:', error.message); // Log error message
+    res.status(403).json({ message: 'Invalid token',error:error.message });
   }
 };
 
 export default authMiddleware;
+
