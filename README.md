@@ -113,3 +113,62 @@ npx sys create <project-name>
   "mobile": "+1234567890"
 }
 ```
+
+#### 2. Login
+- Login with email, username, or mobile:
+- Endpoint: ```/api/users/login```
+- Payload:
+```json
+{
+  "emailOrUsernameOrMobile": "john@example.com",
+  "password": "securepassword"
+}
+```
+
+#### 3. Verify Email
+- To verify email with OTP sent on registration:
+- Endpoint: ```/api/users/verify-email```
+- Payload:
+```json
+{
+  "email": "john@example.com",
+  "verificationToken": "123456"
+}
+```
+
+#### 4. Forgot Password
+- Request a password reset email:
+- Endpoint: ```/api/users/forgot-password```
+- Payload:
+```json
+{
+  "email": "john@example.com"
+}
+```
+#### 5. Reset Password
+- Reset password using the token from the email:
+- Endpoint: ```/api/users/reset-password```
+- Payload:
+```json
+{
+  "token": "resetTokenFromEmail",
+  "newPassword": "newSecurePassword",
+  "confirmPassword": "newSecurePassword"
+}
+```
+
+#### 6. SMS OTP
+- Send an OTP via SMS:
+- Endpoint: /api/users/send-otp
+- Payload:
+```json
+{
+  "phoneNumber": "+1234567890"
+}
+```
+
+7. Logout
+- Logout the user by clearing the authentication cookie:
+- Endpoint: /api/users/logout
+- No payload required.
+
