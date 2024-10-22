@@ -48,30 +48,18 @@ To get started, clone the repository and install the necessary dependencies:
 
 ```bash
 git clone https://github.com/arsh14082002/oth-jen.git
-cd auth-jen
+cd oth-jen
 npm install
 ```
 
-## Create a new project with the CLI
+### Create a new project with the CLI
 ```bash
-npm run create <project-name>
+chmod +x index.js
 ```
 
-## Set up environment variables
-- Create a ```.env ``` file in the root directory and configure the following variables:
+### link bundler
 ```bash
-JWT_SECRET=<your_jwt_secret>
-MONGO_URI=<your_mongodb_uri>
-EMAIL_USERNAME=<your_email_username>
-EMAIL_PASSWORD=<your_email_password>
-TWILIO_ACCOUNT_SID=<your_twilio_account_sid>
-TWILIO_AUTH_TOKEN=<your_twilio_auth_token>
-PORT=5000
-```
-
-## Running the Project
-```bash
-npm start
+npm link
 ```
 
 ## Project Structure
