@@ -1,123 +1,61 @@
-# My Node Authentication Bundler
+# Oth-Jen - Node.js Authentication API
 
-## Overview
+## Table of Contents
 
-This API provides user authentication and management functionalities. Below is a detailed explanation of the routes available in the application, along with instructions on configuring necessary API keys and environment variables for a successful setup.
+1. [Introduction](#introduction)
+2. [Features](#features)
+3. [Requirements](#requirements)
+4. [Installation](#installation)
+5. [Project Structure](#project-structure)
+6. [Usage](#usage)
+   - [Registration](#registration)
+   - [Login](#login)
+   - [Verify Email](#verify-email)
+   - [Forgot Password](#forgot-password)
+   - [Reset Password](#reset-password)
+   - [SMS OTP](#sms-otp)
+   - [Logout](#logout)
+7. [API Endpoints](#api-endpoints)
+8. [Environment Variables](#environment-variables)
+9. [Contributing](#contributing)
+10. [License](#license)
 
-## Routes
+## Introduction
 
-### User Authentication
+`Auth-Jen` is a Node.js-based authentication system built with Express, Mongoose, and JWT. It provides user registration, login, email verification, password reset, SMS OTP, and JWT-based authentication with token management via cookies.
 
-1. **Register User**
-   - **Endpoint:** `POST /api/register`
-   - **Description:** Registers a new user in the application.
-   - **Request Body:**
-     ```json
-     {
-       "username": "string",
-       "email": "string",
-       "password": "string"
-     }
-     ```
+## Features
 
-2. **Login User**
-   - **Endpoint:** `POST /api/login`
-   - **Description:** Authenticates a user and returns a JWT token.
-   - **Request Body:**
-     ```json
-     {
-       "email": "string",
-       "password": "string"
-     }
-     ```
+- User Registration
+- JWT-based Authentication
+- Email Verification
+- Password Reset
+- SMS OTP Verification
+- Secure Authentication via Cookies
+- Environment Configuration Support (dotenv)
+- Modular Structure for Easy Expansion
 
-3. **Logout User**
-   - **Endpoint:** `POST /api/logout`
-   - **Description:** Logs out the user by invalidating the JWT token.
-   - **Middleware:** Requires authentication.
+## Requirements
 
-4. **Forgot Password**
-   - **Endpoint:** `POST /api/forgot-password`
-   - **Description:** Initiates the password reset process by sending an email to the user.
-   - **Request Body:**
-     ```json
-     {
-       "email": "string"
-     }
-     ```
-   - **Middleware:** Requires authentication.
+Before running this project, make sure you have the following:
 
-5. **Reset Password**
-   - **Endpoint:** `POST /api/reset-password`
-   - **Description:** Resets the user's password using a token sent via email.
-   - **Request Body:**
-     ```json
-     {
-       "token": "string",
-       "newPassword": "string"
-     }
-     ```
-   - **Middleware:** Requires authentication.
+- Node.js (v14+)
+- MongoDB
 
-### SMS Verification
+## Installation
 
-6. **Send SMS OTP**
-   - **Endpoint:** `POST /api/send-otp`
-   - **Description:** Sends an OTP (One-Time Password) to the user's registered phone number for verification.
+To get started, clone the repository and install the necessary dependencies:
 
-7. **Verify OTP**
-   - **Endpoint:** `POST /api/verify-otp`
-   - **Description:** Verifies the OTP sent to the user's phone number.
-
-### User Profile
-
-8. **Get Single User**
-   - **Endpoint:** `GET /api/:id`
-   - **Description:** Retrieves the profile of a user by their ID.
-   - **Middleware:** Requires authentication.
-
-## Configuration
-
-Before running the application, make sure to set up your environment variables. You can create a `.env` file in the root of your project with the following keys:
-
-```plaintext
-# JWT Secret for signing tokens
-JWT_SECRET=your_jwt_secret
-
-# Email configuration
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
-
-# Twilio configuration
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-
-# MongoDB connection string
-MONGO_URI=mongodb://localhost:27017/mydatabase
+```bash
+git clone https://github.com/arsh14082002/oth-jen.git
+cd auth-jen
+npm install
 ```
 
-# Important Notes
-   - **JWT Secret:** This is crucial for token generation and validation. Ensure this is a strong, random string.
-   - **Email Configuration:** Use your actual email credentials for sending password reset emails.
-   - **Twilio Configuration:** Required if you are using Twilio for SMS services. Make sure to sign up for a Twilio account and obtain your `Account SID` and `Auth Token`.
-   - **MongoDB URI:** If you're using a local MongoDB instance, the default connection string will suffice. For cloud databases, replace it with your connection string.
-
-# Running the Application
-After configuring your environment variables, run the following commands to install dependencies and start the server
-    ```plaintext
-    npm install
-    npm start
-    ```
-Ensure that you have MongoDB running (either locally or remotely) to connect to the database successfully.
-
-# License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-```plaintext
-
-### Usage
-- Save this content to a file named `README.md` in the root directory of your project.
-- Make sure to update the **License** section if your project uses a different license. 
-
-Let me know if you need any further adjustments!
+## Create a new project with the CLI
+```bash
+npm run create <project-name>
 ```
+
+## Set up environment variables
+- Create a ```plaintext .env ``` file in the root directory and configure the following variables:
