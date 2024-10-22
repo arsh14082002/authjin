@@ -99,3 +99,17 @@ npx sys create <project-name>
 └── package.json         
 └── webpack.config.js         
 ```
+
+# Usage
+#### 1. Registration
+- Register a new user by sending a POST request:
+- Endpoint: ```/api/users/register```
+- Payload:
+```json
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "securepassword",
+  "mobile": "+1234567890"
+}
+```
