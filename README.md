@@ -183,6 +183,8 @@ npx sys create <project-name>
 - Endpoint: /api/users/logout
 - No payload required.
 
+## API Endpoints
+
 | Method | Endpoint                    | Description                           |
 |--------|-----------------------------|---------------------------------------|
 | POST   | `/api/users/register`       | Register a new user                   |
