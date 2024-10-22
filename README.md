@@ -52,7 +52,7 @@ cd oth-jen
 npm install
 ```
 
-### Create a new project with the CLI
+### Create a new project with the CLI (For Ubuntu)
 ```bash
 chmod +x index.js
 ```
