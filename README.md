@@ -159,7 +159,7 @@ npx sys create <project-name>
 
 #### 6. SMS OTP
 - Send an OTP via SMS:
-- Endpoint: /api/users/send-otp
+- Endpoint: ```/api/users/send-otp```
 - Payload:
 ```json
 {
@@ -172,3 +172,23 @@ npx sys create <project-name>
 - Endpoint: /api/users/logout
 - No payload required.
 
+## Environment Variables
+- The app uses the following environment variables:
+```bash
+JWT_SECRET=<your_jwt_secret>
+MONGO_URI=<your_mongodb_uri>
+EMAIL_USERNAME=<your_email_username>
+EMAIL_PASSWORD=<your_email_password>
+TWILIO_ACCOUNT_SID=<your_twilio_account_sid>
+TWILIO_AUTH_TOKEN=<your_twilio_auth_token>
+PORT=5000
+```
+
+## Contributing
+- Feel free to contribute to the project by creating a pull request or submitting issues for feature requests and bugs.
+
+## License
+This project is licensed under the MIT License.
+```rust
+This README outlines the installation steps, usage instructions, project structure, and provides examples for common API actions, making it user-friendly for developers.
+```
