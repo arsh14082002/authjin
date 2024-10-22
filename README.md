@@ -62,22 +62,40 @@ chmod +x index.js
 npm link
 ```
 
+### Now Create Project for authentication
+```bash
+npx sys create <project-name>
+```
+
 ## Project Structure
 ```bash
 .
-├── bin/
-│   └── create.js        # CLI for project creation
-├── src/
-│   ├── app.js           # Express app configuration
-│   ├── config/
-│   │   └── db.js        # MongoDB connection setup
-│   ├── controllers/
-│   │   └── userController.js # User-related controllers
-│   ├── middlewares/
-│   │   └── authMiddleware.js # Authentication middleware
-│   ├── models/
-│   │   └── userModel.js  # User schema and model
-│   ├── routes/
-│       └── userRoute.js  # User-related routes
-└── package.json         # Project metadata and dependencies
+├── createFunctions/
+│   └── copyFileFromTemplate.js        
+│   └── createPackage.js        
+│   └── createTsConfig.js        
+├── templates/
+│   ├── src           
+│   │   └── config       
+│   │   │    └─── db.js       
+│   │   │    └─── apiConfig.js       
+│   │   └── controllers       
+│   │   │    └─── userController.js       
+│   │   └── middlewares       
+│   │   │    └─── authMiddleware.js       
+│   │   └── models       
+│   │   │    └─── userModel.js       
+│   │   └── routes       
+│   │   │    └─── userRoutes.js       
+│   │   └── app.js       
+│   ├── .gitignore           
+│   ├── .prettierrc           
+│   ├── eslint.config.js           
+│   ├── server.js           
+└── .gitignore         
+└── createFunctions.js         
+└── index.js         
+└── package-lock.json         
+└── package.json         
+└── webpack.config.js         
 ```
