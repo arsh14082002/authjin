@@ -167,10 +167,34 @@ npx sys create <project-name>
 }
 ```
 
-7. Logout
+#### 7. SMS OTP Verify
+- Verify an OTP via SMS:
+- Endpoint: ```/api/users/verify-otp```
+- Payload:
+```json
+{
+  "phoneNumber": "+1234567890",
+  "otp":"123456"
+}
+```
+
+#### 8. Logout
 - Logout the user by clearing the authentication cookie:
 - Endpoint: /api/users/logout
 - No payload required.
+
+| Method | Endpoint                    | Description                           |
+|--------|-----------------------------|---------------------------------------|
+| POST   | `/api/users/register`       | Register a new user                   |
+| POST   | `/api/users/login`          | Login user                            |
+| POST   | `/api/users/verify-email`   | Verify email with OTP                 |
+| POST   | `/api/users/logout`         | Logout the user                       |
+| POST   | `/api/users/forgot-password`| Send password reset email             |
+| POST   | `/api/users/reset-password` | Reset the user's password             |
+| POST   | `/api/users/send-otp`       | Send OTP for phone number verification|
+| POST   | `/api/users/verify-otp`     | verify OTP for phone number           |
+| POST   | `/api/users/verify-otp`     | Verify phone number OTP               |
+
 
 ## Environment Variables
 - The app uses the following environment variables:
