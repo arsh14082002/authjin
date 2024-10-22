@@ -58,4 +58,38 @@ npm run create <project-name>
 ```
 
 ## Set up environment variables
-- Create a ```plaintext .env ``` file in the root directory and configure the following variables:
+- Create a ```.env ``` file in the root directory and configure the following variables:
+```bash
+JWT_SECRET=<your_jwt_secret>
+MONGO_URI=<your_mongodb_uri>
+EMAIL_USERNAME=<your_email_username>
+EMAIL_PASSWORD=<your_email_password>
+TWILIO_ACCOUNT_SID=<your_twilio_account_sid>
+TWILIO_AUTH_TOKEN=<your_twilio_auth_token>
+PORT=5000
+```
+
+## Running the Project
+```bash
+npm start
+```
+
+## Project Structure
+```bash
+.
+├── bin/
+│   └── create.js        # CLI for project creation
+├── src/
+│   ├── app.js           # Express app configuration
+│   ├── config/
+│   │   └── db.js        # MongoDB connection setup
+│   ├── controllers/
+│   │   └── userController.js # User-related controllers
+│   ├── middlewares/
+│   │   └── authMiddleware.js # Authentication middleware
+│   ├── models/
+│   │   └── userModel.js  # User schema and model
+│   ├── routes/
+│       └── userRoute.js  # User-related routes
+└── package.json         # Project metadata and dependencies
+```
