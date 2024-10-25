@@ -1,14 +1,28 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { createPackageJson } from './createFunctions/createPackage.js';
-import { createTsConfig } from './createFunctions/createTsConfig.js';
 import { copyFileFromTemplate } from './createFunctions/copyFileFromTemplate.js';
-import  ora  from 'ora'; // Import the ora package for loading spinner
+import ora from 'ora';
+import inquirer from 'inquirer';
+import { createDB } from './templates/src/config/db.js';
+import { createModel } from './templates/src/models/userModel.js';
 
 export async function createProject(name, useTypescript = false) {
   const dir = path.resolve(`./${name}`);
 
-  const spinner = ora('Creating project directories...').start(); // Start spinner
+  // Prompt for database type
+  const { dbType } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'dbType',
+      message: 'Which database would you like to use?',
+      choices: ['MongoDB', 'MySQL'],
+    },
+  ]);
+
+  console.log('DB Type', dbType);
+
+  const spinner = ora('Creating project directories...').start();
 
   try {
     await fs.ensureDir(dir);
@@ -25,28 +39,35 @@ export async function createProject(name, useTypescript = false) {
     return;
   }
 
-  // Create package.json and copy files
   spinner.start('Creating your project files...');
-  
-  try {
-    await createPackageJson(dir, name, useTypescript);
-    await copyFileFromTemplate(dir, 'eslint.config.js', useTypescript); // Copy ESLint config
-    await copyFileFromTemplate(dir, '.prettierrc', useTypescript);    // Copy Prettier config
-    await copyFileFromTemplate(dir, '.gitignore', useTypescript); // Corrected to use .js extension
-    await copyFileFromTemplate(dir, 'server.js', useTypescript);
 
+  try {
+    // Pass dbType to createPackageJson function
+    await createPackageJson(dir, name, useTypescript, dbType);
+    await createDB(dir, dbType, useTypescript);
+    await createModel(dir, 'User', dbType, useTypescript);
+    await copyFileFromTemplate(dir, 'eslint.config.js', useTypescript);
+    await copyFileFromTemplate(dir, '.prettierrc', useTypescript);
+    await copyFileFromTemplate(dir, '.gitignore', useTypescript);
+    await copyFileFromTemplate(dir, 'server.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/app.js', useTypescript);
-    await copyFileFromTemplate(dir, 'src/config/db.js', useTypescript);
+
+    // if (dbType === 'MongoDB') {
+    //   await copyFileFromTemplate(dir, 'src/config/mongoConfig.js', useTypescript, dbType);
+    // } else if (dbType === 'MySQL') {
+    //   await copyFileFromTemplate(dir, 'src/config/mysqlConfig.js', useTypescript, dbType);
+    // }
+
     await copyFileFromTemplate(dir, 'src/routes/userRoute.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/controllers/userController.js', useTypescript);
-    await copyFileFromTemplate(dir, 'src/models/userModel.js', useTypescript);
+    // await copyFileFromTemplate(dir, 'src/models/userModel.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/middlewares/authMiddleware.js', useTypescript);
-    await copyFileFromTemplate(dir, 'src/config/apiConfig.js', useTypescript); // Corrected to use .js extension
+    await copyFileFromTemplate(dir, 'src/config/apiConfig.js', useTypescript);
 
     if (useTypescript) {
       await createTsConfig(dir);
     }
-    
+
     spinner.succeed('Package.json and template files copied successfully.');
   } catch (error) {
     spinner.fail('Failed to create package.json or copy template files.');
