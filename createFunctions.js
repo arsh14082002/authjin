@@ -6,6 +6,7 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import { createDB } from './templates/src/config/db.js';
 import { createModel } from './templates/src/models/userModel.js';
+import { createController } from './templates/src/controllers/userController.js';
 
 export async function createProject(name, useTypescript = false) {
   const dir = path.resolve(`./${name}`);
@@ -20,7 +21,7 @@ export async function createProject(name, useTypescript = false) {
     },
   ]);
 
-  console.log('DB Type', dbType);
+  console.log('DB Type:', dbType);
 
   const spinner = ora('Creating project directories...').start();
 
@@ -46,21 +47,17 @@ export async function createProject(name, useTypescript = false) {
     await createPackageJson(dir, name, useTypescript, dbType);
     await createDB(dir, dbType, useTypescript);
     await createModel(dir, 'User', dbType, useTypescript);
+
+    // Create the controller based on the selected DB type
+    await createController(dir, dbType, useTypescript);
+
+    // Copy other template files
     await copyFileFromTemplate(dir, 'eslint.config.js', useTypescript);
     await copyFileFromTemplate(dir, '.prettierrc', useTypescript);
     await copyFileFromTemplate(dir, '.gitignore', useTypescript);
     await copyFileFromTemplate(dir, 'server.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/app.js', useTypescript);
-
-    // if (dbType === 'MongoDB') {
-    //   await copyFileFromTemplate(dir, 'src/config/mongoConfig.js', useTypescript, dbType);
-    // } else if (dbType === 'MySQL') {
-    //   await copyFileFromTemplate(dir, 'src/config/mysqlConfig.js', useTypescript, dbType);
-    // }
-
     await copyFileFromTemplate(dir, 'src/routes/userRoute.js', useTypescript);
-    await copyFileFromTemplate(dir, 'src/controllers/userController.js', useTypescript);
-    // await copyFileFromTemplate(dir, 'src/models/userModel.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/middlewares/authMiddleware.js', useTypescript);
     await copyFileFromTemplate(dir, 'src/config/apiConfig.js', useTypescript);
 
