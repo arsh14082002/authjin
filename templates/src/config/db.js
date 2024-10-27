@@ -6,43 +6,102 @@ export async function createDB(dir, dbType, useTypescript) {
     mongoConfig: {
       path: path.join(dir, 'src/config/db.js'),
       content: `
-      import mongoose from 'mongoose';
-        import dotenv from 'dotenv';
-        dotenv.config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import apiConfig from './apiConfig.js';
+dotenv.config();
+
+const mongoURI = apiConfig.mongoDB;
 
 export async function connectDB() {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    mongoose.set('strictQuery', true);
+    mongoose.connection("connected",()=>{
+      console.log("MongoDB connected");
+    })
+
+    mongoose.connection.on("error",(error)=>{
+      console.log("MongoDB disconnected");
+    })
+    await mongoose.connect(mongoURI);
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection failed:', error);
     process.exit(1);
   }
-};`,
+}
+`,
     },
     mysqlConfig: {
       path: path.join(dir, 'src/config/mysqlConfig.js'),
-      content: `import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-dotenv.config();
+      content: `
+     // models/User.js
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-export const db = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE,
-});`,
+const User = sequelize.define('User', {
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  mobile: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
+  emailVerificationToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  mobileOtp: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  mobileOtpExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+});
+
+export default User;
+ 
+      `,
     },
   };
 
   // Create MongoDB or MySQL config file based on dbType
   if (dbType === 'MongoDB') {
-    await fs.outputFile(fileContentMap.mongoConfig.path, fileContentMap.mongoConfig.content);
+    await fs.outputFile(
+      fileContentMap.mongoConfig.path,
+      fileContentMap.mongoConfig.content
+    );
   } else if (dbType === 'MySQL') {
-    await fs.outputFile(fileContentMap.mysqlConfig.path, fileContentMap.mysqlConfig.content);
+    await fs.outputFile(
+      fileContentMap.mysqlConfig.path,
+      fileContentMap.mysqlConfig.content
+    );
   }
 
   // Conditionally create TypeScript configuration file

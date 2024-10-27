@@ -22,7 +22,7 @@
 
 ## Introduction
 
-`Auth-Jen` is a Node.js-based authentication system built with Express, Mongoose, and JWT. It provides user registration, login, email verification, password reset, SMS OTP, and JWT-based authentication with token management via cookies.
+This project creation script includes several steps to generate a basic Node.js project with user authentication, database connection, and more, based on user input. Here’s a summary of the structure and tasks, followed by guidance on any areas needing further customization.
 
 ## Features
 
@@ -53,58 +53,65 @@ npm install
 ```
 
 ### Create a new project with the CLI (For Ubuntu)
+
 ```bash
 chmod +x index.js
 ```
 
 ### link bundler
+
 ```bash
 npm link
 ```
 
 ### Now Create Project for authentication
+
 ```bash
 npx sys create <project-name>
 ```
 
 ## Project Structure
+
 ```bash
 .
 ├── createFunctions/
-│   └── copyFileFromTemplate.js        
-│   └── createPackage.js        
-│   └── createTsConfig.js        
+│   └── copyFileFromTemplate.js
+│   └── createPackage.js
+│   └── createTsConfig.js
 ├── templates/
-│   ├── src           
-│   │   └── config       
-│   │   │    └─── db.js       
-│   │   │    └─── apiConfig.js       
-│   │   └── controllers       
-│   │   │    └─── userController.js       
-│   │   └── middlewares       
-│   │   │    └─── authMiddleware.js       
-│   │   └── models       
-│   │   │    └─── userModel.js       
-│   │   └── routes       
-│   │   │    └─── userRoutes.js       
-│   │   └── app.js       
-│   ├── .gitignore           
-│   ├── .prettierrc           
-│   ├── eslint.config.js           
-│   ├── server.js           
-└── .gitignore         
-└── createFunctions.js         
-└── index.js         
-└── package-lock.json         
-└── package.json         
-└── webpack.config.js         
+│   ├── src
+│   │   └── config
+│   │   │    └─── db.js
+│   │   │    └─── apiConfig.js
+│   │   └── controllers
+│   │   │    └─── userController.js
+│   │   └── middlewares
+│   │   │    └─── authMiddleware.js
+│   │   └── models
+│   │   │    └─── userModel.js
+│   │   └── routes
+│   │   │    └─── userRoutes.js
+│   │   └── app.js
+│   ├── .gitignore
+│   ├── .prettierrc
+│   ├── eslint.config.js
+│   ├── server.js
+└── .gitignore
+└── createFunctions.js
+└── index.js
+└── package-lock.json
+└── package.json
+└── webpack.config.js
 ```
 
 # Usage
+
 #### 1. Registration
+
 - Register a new user by sending a POST request:
-- Endpoint: ```/api/users/register```
+- Endpoint: `/api/users/register`
 - Payload:
+
 ```json
 {
   "username": "john_doe",
@@ -115,9 +122,11 @@ npx sys create <project-name>
 ```
 
 #### 2. Login
+
 - Login with email, username, or mobile:
-- Endpoint: ```/api/users/login```
+- Endpoint: `/api/users/login`
 - Payload:
+
 ```json
 {
   "emailOrUsernameOrMobile": "john@example.com",
@@ -126,9 +135,11 @@ npx sys create <project-name>
 ```
 
 #### 3. Verify Email
+
 - To verify email with OTP sent on registration:
-- Endpoint: ```/api/users/verify-email```
+- Endpoint: `/api/users/verify-email`
 - Payload:
+
 ```json
 {
   "email": "john@example.com",
@@ -137,18 +148,23 @@ npx sys create <project-name>
 ```
 
 #### 4. Forgot Password
+
 - Request a password reset email:
-- Endpoint: ```/api/users/forgot-password```
+- Endpoint: `/api/users/forgot-password`
 - Payload:
+
 ```json
 {
   "email": "john@example.com"
 }
 ```
+
 #### 5. Reset Password
+
 - Reset password using the token from the email:
-- Endpoint: ```/api/users/reset-password```
+- Endpoint: `/api/users/reset-password`
 - Payload:
+
 ```json
 {
   "token": "resetTokenFromEmail",
@@ -158,9 +174,11 @@ npx sys create <project-name>
 ```
 
 #### 6. SMS OTP
+
 - Send an OTP via SMS:
-- Endpoint: ```/api/users/send-otp```
+- Endpoint: `/api/users/send-otp`
 - Payload:
+
 ```json
 {
   "phoneNumber": "+1234567890"
@@ -168,38 +186,42 @@ npx sys create <project-name>
 ```
 
 #### 7. SMS OTP Verify
+
 - Verify an OTP via SMS:
-- Endpoint: ```/api/users/verify-otp```
+- Endpoint: `/api/users/verify-otp`
 - Payload:
+
 ```json
 {
   "phoneNumber": "+1234567890",
-  "otp":"123456"
+  "otp": "123456"
 }
 ```
 
 #### 8. Logout
+
 - Logout the user by clearing the authentication cookie:
 - Endpoint: /api/users/logout
 - No payload required.
 
 ## API Endpoints
 
-| Method | Endpoint                    | Description                           |
-|--------|-----------------------------|---------------------------------------|
-| POST   | `/api/users/register`       | Register a new user                   |
-| POST   | `/api/users/login`          | Login user                            |
-| POST   | `/api/users/verify-email`   | Verify email with OTP                 |
-| POST   | `/api/users/logout`         | Logout the user                       |
-| POST   | `/api/users/forgot-password`| Send password reset email             |
-| POST   | `/api/users/reset-password` | Reset the user's password             |
-| POST   | `/api/users/send-otp`       | Send OTP for phone number verification|
-| POST   | `/api/users/verify-otp`     | verify OTP for phone number           |
-| POST   | `/api/users/verify-otp`     | Verify phone number OTP               |
-
+| Method | Endpoint                     | Description                            |
+| ------ | ---------------------------- | -------------------------------------- |
+| POST   | `/api/users/register`        | Register a new user                    |
+| POST   | `/api/users/login`           | Login user                             |
+| POST   | `/api/users/verify-email`    | Verify email with OTP                  |
+| POST   | `/api/users/logout`          | Logout the user                        |
+| POST   | `/api/users/forgot-password` | Send password reset email              |
+| POST   | `/api/users/reset-password`  | Reset the user's password              |
+| POST   | `/api/users/send-otp`        | Send OTP for phone number verification |
+| POST   | `/api/users/verify-otp`      | verify OTP for phone number            |
+| POST   | `/api/users/verify-otp`      | Verify phone number OTP                |
 
 ## Environment Variables
+
 - The app uses the following environment variables:
+
 ```bash
 JWT_SECRET=<your_jwt_secret>
 MONGO_URI=<your_mongodb_uri>
@@ -211,10 +233,13 @@ PORT=5000
 ```
 
 ## Contributing
+
 - Feel free to contribute to the project by creating a pull request or submitting issues for feature requests and bugs.
 
 ## License
+
 This project is licensed under the MIT License.
+
 ```rust
 This README outlines the installation steps, usage instructions, project structure, and provides examples for common API actions, making it user-friendly for developers.
 ```

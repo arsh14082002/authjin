@@ -45,15 +45,17 @@ const generateOtp = () =>
         dir,
         `src/controllers/userController${useTypescript ? '.ts' : '.js'}`
       ),
-      content: `import bcrypt from 'bcrypt';
+      content: `
+      import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
-// import generateOtp from '../utils/generateOtp.js';
 import apiConfig from '../config/apiConfig.js';
 import User from '../models/User.js';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken'; // Make sure you import jwt
+import twilio from 'twilio';
 
-const your_jwt_secret = apiConfig.jwtSecret;
+const jwtSecret = apiConfig.jwtSecret;
 const emailUserName = apiConfig.emailUserName;
 const emailPassword = apiConfig.emailPassword;
 const accountSid = apiConfig.accountSid;
@@ -106,7 +108,12 @@ export const registerUser = async (req, res) => {
       from: emailUserName,
       to: email,
       subject: 'Verify your Email',
-      html: "<p>Welcome " + username + ",</p><p>Your verification code is:" + generateOtp()+"</b></p><p>Please use this code to verify your email and activate your account.</p>", // Corrected backticks
+      html:
+        '<p>Welcome ' +
+        username +
+        ',</p><p>Your verification code is:' +
+        generateOtp() +
+        '</b></p><p>Please use this code to verify your email and activate your account.</p>', // Corrected backticks
     };
 
     await transporter.sendMail(mailOptions);
@@ -175,14 +182,15 @@ export const verifyEmail = async (req, res) => {
   const { email, verificationToken } = req.body;
 
   try {
+    // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if the verification token matches the one in the database
+    // Check if the verification token matches the one stored in the database
     if (user.emailVerificationToken === verificationToken) {
-      // Set user as verified
+      // Mark user as verified
       user.isVerified = true;
       user.emailVerificationToken = undefined; // Clear the token after successful verification
       await user.save();
@@ -190,7 +198,7 @@ export const verifyEmail = async (req, res) => {
       // Generate JWT token after successful verification
       const token = jwt.sign(
         { userId: user._id },
-        your_jwt_secret, // Ensure this is correctly defined
+        jwtSecret, // Ensure your secret is defined in environment variables
         { expiresIn: '1h' }
       );
 
@@ -201,12 +209,13 @@ export const verifyEmail = async (req, res) => {
         maxAge: 3600000, // 1 hour
       });
 
-      // Respond with success and token (if you want to send it directly)
+      // Respond with success message and token
       res.status(200).json({ message: 'Email verified successfully', token });
     } else {
       res.status(400).json({ message: 'Invalid verification token' });
     }
   } catch (error) {
+    console.error('Verification error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -229,7 +238,9 @@ export const forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // Generate a reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetToken = generateOtp();
+
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
     await user.save();
@@ -247,8 +258,10 @@ export const forgotPassword = async (req, res) => {
       from: emailUserName,
       to: user.email,
       subject: 'Password Reset',
-      html: "You requested a password reset. Click the following link to reset your password:"+ generateOtp()
-      };
+      html:
+        'You requested a password reset. Click the following link to reset your password:' +
+        generateOtp(),
+    };
 
     await transporter.sendMail(mailOptions);
     res.status(200).json({ message: 'Password reset email sent' });
@@ -289,39 +302,71 @@ export const resetPassword = async (req, res) => {
 };
 
 export const sendSMSOTP = async (req, res) => {
-  const { phoneNumber } = req.body;
-  const otp = generateOtp();
+  const { email } = req.body;
 
   try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user || !user.mobile) {
+      return res
+        .status(404)
+        .json({ message: 'User or mobile number not found' });
+    }
+
+    // Generate a new OTP
+    const otp = generateOtp();
+
+    // Store the OTP and its expiration time in the database
+    user.mobileOtp = otp;
+    user.mobileOtpExpire = Date.now() + 300000; // 5 minutes
+    await user.save();
+
+    // Send the OTP via SMS to the user's registered mobile number
     await client.messages.create({
-      body: "Your OTP code is " + generateOtp(),
+      body: "Your OTP code is ${otp}",
       from: '+13037474559', // Replace with your Twilio phone number
-      to: phoneNumber,
+      to: user.mobile,
     });
 
-    // Here, save the OTP and phoneNumber in your database with an expiry time
-    // This example assumes you have a simple in-memory store (replace with your database logic)
-    otpStore[phoneNumber] = otp;
-
-    res.status(200).json({ message: 'OTP sent successfully' });
+    res
+      .status(200)
+      .json({ message: 'OTP sent successfully to registered mobile number' });
   } catch (error) {
-    res.status(500).send({
-      message: "'Error sending OTP'",
-      error: error.message,
-    });
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: 'Error sending OTP', error: error.message });
   }
 };
 
 export const verifyOTP = async (req, res) => {
-  const { phoneNumber, otp } = req.body;
+  const { email, otp } = req.body;
 
-  if (otpStore[phoneNumber] === otp) {
-    delete otpStore[phoneNumber]; // Remove OTP after successful verification
-    res.status(200).send('OTP verified successfully');
-  } else {
-    res.status(400).send('Invalid OTP');
+  try {
+    // Find the user by email and check OTP
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if OTP matches and is not expired
+    if (user.mobileOtp === otp && user.mobileOtpExpire > Date.now()) {
+      // Clear the OTP and expiration time upon successful verification
+      user.mobileOtp = undefined;
+      user.mobileOtpExpire = undefined;
+      await user.save();
+
+      res.status(200).json({ message: 'OTP verified successfully' });
+    } else {
+      res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 export const getSingleUser = async (req, res) => {
   try {
@@ -335,31 +380,33 @@ export const getSingleUser = async (req, res) => {
   }
 };
 
-  `,
+      `,
     },
+
     mysqlConfig: {
       path: path.join(
         dir,
         `src/controllers/userController${useTypescript ? '.ts' : '.js'}`
       ),
       content: `
-      
-  import bcrypt from 'bcrypt';
+        import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import apiConfig from '../config/apiConfig.js';
-import User from '../models/User.js';
+import { User } from '../models'; // Assuming Sequelize models are defined here
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import twilio from 'twilio';
 
-const your_jwt_secret = apiConfig.jwtSecret;
+const jwtSecret = apiConfig.jwtSecret;
 const emailUserName = apiConfig.emailUserName;
 const emailPassword = apiConfig.emailPassword;
 const accountSid = apiConfig.accountSid;
 const authToken = apiConfig.authToken;
 const client = new twilio(accountSid, authToken);
-const otpStore = {};
 
-const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateOtp = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
 
 export const registerUser = async (req, res) => {
   const userValidationSchema = z.object({
@@ -373,22 +420,21 @@ export const registerUser = async (req, res) => {
     const validatedData = userValidationSchema.parse(req.body);
     const { username, email, password, mobile } = validatedData;
 
-    const [existingUser] = await db.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
-    );
-
-    if (existingUser.length > 0) {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const emailVerificationToken = generateOtp();
 
-    await db.execute(
-      'INSERT INTO users (username, email, password, mobile, emailVerificationToken) VALUES (?, ?, ?, ?, ?)',
-      [username, email, hashedPassword, mobile, emailVerificationToken]
-    );
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      mobile,
+      emailVerificationToken,
+    });
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -402,7 +448,7 @@ export const registerUser = async (req, res) => {
       from: emailUserName,
       to: email,
       subject: 'Verify your Email',
-      html: "<p>Welcome " + username + ",</p><p>Your verification code is: <b>" + emailVerificationToken + "</b></p><p>Please use this code to verify your email and activate your account.</p>",
+      html: "<p>Welcome ,</p>" + username + "<p>Your verification code is:" + emailVerificationToken,
     };
 
     await transporter.sendMail(mailOptions);
@@ -426,16 +472,16 @@ export const loginUser = async (req, res) => {
     const validatedData = loginValidationSchema.parse(req.body);
     const { emailOrUsernameOrMobile, password } = validatedData;
 
-    const [userRows] = await db.execute(
-      'SELECT * FROM users WHERE username = ? OR email = ? OR mobile = ?',
-      [
-        emailOrUsernameOrMobile,
-        emailOrUsernameOrMobile,
-        emailOrUsernameOrMobile,
-      ]
-    );
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [
+          { username: emailOrUsernameOrMobile },
+          { email: emailOrUsernameOrMobile },
+          { mobile: emailOrUsernameOrMobile },
+        ],
+      },
+    });
 
-    const user = userRows[0]; 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
@@ -445,7 +491,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    const token = jwt.sign({ userId: user.id }, your_jwt_secret, {
+    const token = jwt.sign({ userId: user.id }, jwtSecret, {
       expiresIn: '1h',
     });
 
@@ -464,6 +510,159 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const verifyEmail = async (req, res) => {
+  const { email, verificationToken } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.emailVerificationToken === verificationToken) {
+      await user.update({ isVerified: true, emailVerificationToken: null });
+
+      const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '1h' });
+
+      res.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 3600000,
+      });
+
+      res.status(200).json({ message: 'Email verified successfully', token });
+    } else {
+      res.status(400).json({ message: 'Invalid verification token' });
+    }
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const logoutUser = (req, res) => {
+  res.clearCookie('token', { path: '/', httpOnly: true });
+  res.json({ message: 'User logged out successfully.' });
+};
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const resetToken = generateOtp();
+
+    await user.update({ resetPasswordToken: resetToken, resetPasswordExpire: Date.now() + 3600000 });
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: emailUserName, pass: emailPassword },
+    });
+
+    const mailOptions = {
+      from: emailUserName,
+      to: user.email,
+      subject: 'Password Reset',
+      html: "<p>Your reset code is: <b>" + resetToken ,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: 'Password reset email sent' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, newPassword, confirmPassword } = req.body;
+
+  try {
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpire: { [Op.gt]: Date.now() },
+      },
+    });
+
+    if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await user.update({ password: hashedPassword, resetPasswordToken: null, resetPasswordExpire: null });
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const sendSMSOTP = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user || !user.mobile) {
+      return res.status(404).json({ message: 'User or mobile number not found' });
+    }
+
+    const otp = generateOtp();
+
+    await user.update({ mobileOtp: otp, mobileOtpExpire: Date.now() + 300000 });
+
+    await client.messages.create({
+      body: "Your OTP code is ${otp}",
+      from: '+13037474559',
+      to: user.mobile,
+    });
+
+    res.status(200).json({ message: 'OTP sent successfully to registered mobile number' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error sending OTP', error: error.message });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (user.mobileOtp === otp && user.mobileOtpExpire > Date.now()) {
+      await user.update({ mobileOtp: null, mobileOtpExpire: null });
+      res.status(200).json({ message: 'OTP verified successfully' });
+    } else {
+      res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getSingleUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
       `,
     },
   };

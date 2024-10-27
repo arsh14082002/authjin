@@ -22,7 +22,7 @@ export async function createPackageJson(dir, name, useTypescript, dbType) {
       dotenv: '^10.0.0',
       jsonwebtoken: '^9.0.2',
       ...(dbType === 'MongoDB' && { mongoose: '^6.0.0' }),
-      ...(dbType === 'MySQL' && { mysql2: '^2.3.3' }),
+      ...(dbType === 'MySQL' && { mysql2: '^2.3.3', sequelize: '^6.37.5' }),
       nodemailer: '^6.9.15',
       twilio: '^5.3.3',
       zod: '^3.23.8',
