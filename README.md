@@ -216,7 +216,6 @@ npx sys create <project-name>
 | POST   | `/api/users/reset-password`  | Reset the user's password              |
 | POST   | `/api/users/send-otp`        | Send OTP for phone number verification |
 | POST   | `/api/users/verify-otp`      | verify OTP for phone number            |
-| POST   | `/api/users/verify-otp`      | Verify phone number OTP                |
 
 ## Environment Variables
 
