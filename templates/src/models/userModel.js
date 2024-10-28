@@ -12,17 +12,25 @@ export async function createModel(dir, modelName, dbType, useTypescript) {
   const modelContentMap = {
     MongoDB: {
       js: `
-import mongoose from 'mongoose';
+	import mongoose from 'mongoose';
 
-const ${modelName}Schema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+const userSchema = new mongoose.Schema(
+  {
+     username: { type: String, required: true,unique:true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   mobile: { type: String },
-}, { timestamps: true });
+  isVerified: { type: Boolean, default: false }, // New field for verification status
+  emailVerificationToken: { type: String }, // Field to store the email OTP
+  resetPasswordToken: { type: String },
+  resetPasswordExpire: { type: Date },
+  },
+  { timestamps: true },
+);
 
-const ${modelName} = mongoose.model('${modelName}', ${modelName}Schema);
-export default ${modelName};
+const User = mongoose.model('User', userSchema);
+export default User;
+
       `,
       ts: `
 import mongoose, { Document, Schema } from 'mongoose';
@@ -47,17 +55,57 @@ export default ${modelName};
     },
     MySQL: {
       js: `
+// models/User.js
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/mysqlConfig.js';
+import sequelize from '../config/database.js';
 
-const ${modelName} = sequelize.define('${modelName}', {
-  username: { type: DataTypes.STRING, allowNull: false, unique: true },
-  email: { type: DataTypes.STRING, allowNull: false, unique: true },
-  password: { type: DataTypes.STRING, allowNull: false },
-  mobile: { type: DataTypes.STRING },
-}, { timestamps: true });
+const User = sequelize.define('User', {
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  mobile: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true,
+  },
+  emailVerificationToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  mobileOtp: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  mobileOtpExpire: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+});
 
-export default ${modelName};
+export default User;
       `,
       ts: `
 import { DataTypes, Model, Optional } from 'sequelize';

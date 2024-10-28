@@ -35,58 +35,7 @@ export async function connectDB() {
     mysqlConfig: {
       path: path.join(dir, 'src/config/mysqlConfig.js'),
       content: `
-     // models/User.js
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
-
-const User = sequelize.define('User', {
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  mobile: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    unique: true,
-  },
-  emailVerificationToken: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  isVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-  },
-  resetPasswordToken: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  resetPasswordExpire: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  mobileOtp: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  mobileOtpExpire: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-});
-
-export default User;
- 
+     
       `,
     },
   };
